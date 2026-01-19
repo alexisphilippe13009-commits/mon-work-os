@@ -5,7 +5,7 @@ import React from 'react';
 import { Dashboard, Board } from '@/app/types';
 import { 
   TrendingUp, Battery, CheckCircle2, AlertCircle, 
-  BarChart3, PieChart, Calendar, Settings, MoreHorizontal, Maximize2 
+  BarChart3, PieChart, Calendar, Settings, MoreHorizontal, Maximize2, Plus 
 } from 'lucide-react';
 
 interface Props {
