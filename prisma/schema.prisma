@@ -1,38 +1,18 @@
 // prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Tu auras juste à coller un lien ici plus tard
+  url      = env("DATABASE_URL")
 }
 
-model Board {
-  id        String   @id @default(uuid())
-  name      String
-  columns   Json     @default("[]") // Stocke la structure (Text, Status, Date...)
-  items     Item[]
-  groups    Group[]
-  createdAt DateTime @default(now())
-}
-
-model Group {
-  id      String @id @default(uuid())
-  title   String
-  color   String @default("#579bfc")
-  boardId String
-  board   Board  @relation(fields: [boardId], references: [id])
-  items   Item[]
-}
-
-model Item {
-  id        String   @id @default(uuid())
-  name      String
-  groupId   String
-  group     Group    @relation(fields: [groupId], references: [id])
-  boardId   String
-  board     Board    @relation(fields: [boardId], references: [id])
-  values    Json     @default("{}") // Stocke les données { "status": "Done", "date": "2024-01-01" }
+// Ce modèle va stocker l'intégralité de ton Work OS
+// C'est le "Cerveau" qui sauvegarde tout (Workspaces, Boards, Items...)
+model AppState {
+  id        String   @id @default("global_state") // Une seule ligne pour l'instant (Single Tenant)
+  data      Json     // Ici, on stocke tout ton objet "workspaces" complexe
   updatedAt DateTime @updatedAt
 }
