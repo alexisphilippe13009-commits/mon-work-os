@@ -33,14 +33,14 @@ export interface Group {
   collapsed: boolean;
 }
 
-// --- DASHBOARD TYPES ---
+// --- NOUVEAUX TYPES POUR DASHBOARD ---
 export interface Widget {
   id: string;
   type: 'battery' | 'numbers' | 'chart' | 'calendar' | 'gantt' | 'workload' | 'activity';
   title: string;
-  layout: { x: number; y: number; w: number; h: number }; // Pour la grille
+  layout: { x: number; y: number; w: number; h: number };
   settings: {
-    sourceBoardIds: string[]; // LINKER TOUT ENSEMBLE
+    sourceBoardIds: string[];
     columnIds?: string[];
     aggregation?: 'sum' | 'count' | 'average';
   };
@@ -49,7 +49,7 @@ export interface Widget {
 export interface Dashboard {
   id: string;
   name: string;
-  type: 'dashboard'; // Distinguer Board vs Dashboard
+  type: 'dashboard'; // Discriminant
   widgets: Widget[];
   favorited: boolean;
 }
@@ -58,19 +58,21 @@ export interface View {
   id: string;
   type: 'table' | 'kanban' | 'gantt' | 'dashboard' | 'calendar' | 'form';
   name: string;
+  widgets?: Widget[];
 }
 
-// Unifié pour gérer soit un Board soit un Dashboard dans la sidebar
+// --- TYPE UNIFIÉ POUR LA SIDEBAR ---
 export type Entity = Board | Dashboard;
 
 export interface Board {
   id: string;
   name: string;
-  type: 'board';
+  type: 'board'; // Discriminant
   description?: string;
   columns: Column[];
   groups: Group[];
   views: View[];
   favorited: boolean;
   automations: any[];
+  workspace_id?: string;
 }
