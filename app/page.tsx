@@ -8,7 +8,7 @@ import { Board } from '@/app/types';
 
 // Données de secours pour l'initialisation Enterprise
 const FALLBACK_DATA: Board = {
-  id: 'b_demo', name: 'Product Roadmap 2026', favorited: true, workspace_id: 'ws1',
+  id: 'b_demo', name: 'Product Roadmap 2026', favorited: true,
   columns: [
     { id: 'c_name', title: 'Task Name', type: 'name', width: 300, fixed: true },
     { id: 'c_status', title: 'Status', type: 'status', width: 140, settings: { labels: { 'Done': '#00c875', 'Stuck': '#e2445c', 'Working': '#fdab3d' } } },
