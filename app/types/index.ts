@@ -75,4 +75,4 @@ export interface Board {
   favorited: boolean;
   automations: any[];
   workspace_id?: string;
-}
+}// force update
