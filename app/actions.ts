@@ -3,62 +3,98 @@
 import { PrismaClient } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
-const prisma = new PrismaClient()
+// On utilise une instance globale pour éviter les erreurs de connexion multiples
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+const prisma = globalForPrisma.prisma || new PrismaClient()
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
-// Récupérer le board complet
-export async function getBoard(id: string) {
-  return await prisma.board.findUnique({
-    where: { id },
+// --- GESTION DU BOARD ---
+export async function getBoardData() {
+  const board = await prisma.board.findFirst({
     include: {
       groups: {
-        include: { items: { orderBy: { updatedAt: 'desc' } } }
+        include: { items: { orderBy: { updatedAt: 'desc' } } },
+        orderBy: { title: 'asc' }
       }
     }
-  })
+  });
+
+  if (!board) {
+    return await createInitialSetup();
+  }
+  return board;
 }
 
-// Créer un item
+// --- SETUP INITIAL ---
+async function createInitialSetup() {
+  return await prisma.board.create({
+    data: {
+      name: "Roadmap Produit Q1",
+      columns: [
+        { id: "person", title: "Responsable", type: "text", width: 150 },
+        { id: "status", title: "Statut", type: "status", width: 140, settings: { 
+            options: { 
+              "Done": "#00c875", 
+              "Working on it": "#fdab3d", 
+              "Stuck": "#e2445c", 
+              "": "#c4c4c4" 
+            } 
+        }},
+        { id: "date", title: "Échéance", type: "date", width: 120 },
+        { id: "priority", title: "Priorité", type: "status", width: 140, settings: {
+            options: { "High": "#401694", "Medium": "#5559df", "Low": "#579bfc" }
+        }}
+      ],
+      groups: {
+        create: [
+          { 
+            title: "Fonctionnalités Principales", 
+            color: "#579bfc",
+            items: { create: [{ name: "Design System V2", values: { status: "Done", priority: "High" } }] }
+          },
+          { 
+            title: "Bugs & Fixes", 
+            color: "#e2445c",
+            items: { create: [{ name: "Corriger l'API login", values: { status: "Stuck", priority: "High" } }] }
+          }
+        ]
+      }
+    },
+    include: { groups: { include: { items: true } } }
+  });
+}
+
+// --- ACTIONS UTILISATEUR (Celles qui manquaient !) ---
+
 export async function createItem(boardId: string, groupId: string, name: string) {
+  if (!name.trim()) return;
   await prisma.item.create({
     data: { boardId, groupId, name, values: {} }
-  })
-  revalidatePath('/')
+  });
+  revalidatePath('/');
 }
 
-// Mettre à jour une cellule (Magie du JSON)
-export async function updateCell(itemId: string, colId: string, value: any) {
-  const item = await prisma.item.findUnique({ where: { id: itemId } })
-  if (!item) return
+export async function deleteItem(itemId: string) {
+  await prisma.item.delete({ where: { id: itemId } });
+  revalidatePath('/');
+}
 
-  const newValues = { ...(item.values as object), [colId]: value }
+export async function updateCell(itemId: string, colId: string, value: any) {
+  const item = await prisma.item.findUnique({ where: { id: itemId } });
+  if (!item) return;
+
+  const newValues = { ...(item.values as object), [colId]: value };
   
   await prisma.item.update({
     where: { id: itemId },
     data: { values: newValues }
-  })
-  revalidatePath('/')
+  });
+  revalidatePath('/');
 }
 
-// Initialiser un Board de démo (pour que tu aies un truc à voir direct)
-export async function createDemoBoard() {
-  const existing = await prisma.board.findFirst();
-  if (existing) return existing.id;
-
-  const board = await prisma.board.create({
-    data: {
-      name: "Projet Alpha (Demo)",
-      columns: [
-        { id: "status", title: "Statut", type: "status", settings: { options: { "done": "#00c875", "stuck": "#e2445c", "working": "#fdab3d" } } },
-        { id: "date", title: "Échéance", type: "date" },
-        { id: "priority", title: "Priorité", type: "text" }
-      ],
-      groups: {
-        create: [
-          { title: "Cette semaine", color: "#579bfc" },
-          { title: "Plus tard", color: "#a25ddc" }
-        ]
-      }
-    }
+export async function createGroup(boardId: string) {
+  await prisma.group.create({
+    data: { boardId, title: "Nouveau Groupe", color: "#a25ddc" }
   });
-  return board.id;
+  revalidatePath('/');
 }
