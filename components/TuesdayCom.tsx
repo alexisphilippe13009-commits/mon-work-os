@@ -1259,7 +1259,6 @@ const TuesdayCom = () => {
             </div>
           )}
         </div>
-      </div>
 
       {/* Workspace Modal */}
       {showWorkspaceModal && (
