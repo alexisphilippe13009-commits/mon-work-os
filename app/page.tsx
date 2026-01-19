@@ -1,9 +1,5 @@
-import { getBoardData } from './actions'
-import BoardView from '@/components/BoardView'
+import TuesdayCom from '@/components/TuesdayCom'
 
-export default async function Page() {
-  // La nouvelle fonction récupère le board ou le crée automatiquement s'il n'existe pas
-  const board = await getBoardData();
-  
-  return <BoardView board={board} />
+export default function Page() {
+  return <TuesdayCom />
 }
