@@ -1,7 +1,6 @@
 // app/page.tsx
 'use server'
 
-import { loadFromCloud } from '@/app/actions';
 import { ClientWrapper } from '@/components/ClientWrapper'; 
 import { Board, Dashboard, Entity } from '@/app/types';
 
@@ -24,7 +23,7 @@ const BOARD_DEV: Board = {
   id: 'b_dev', type: 'board', name: 'Product Roadmap 2026', favorited: true,
   views: [
       {id:'v1', type:'table', name:'Main Table'}, 
-      {id:'v2', type:'gantt', name:'Gantt Timeline'}, // <--- LA VUE GANTT EST ICI
+      {id:'v2', type:'gantt', name:'Gantt Timeline'}, // <--- LA VUE GANTT
       {id:'v3', type:'dashboard', name:'Board Analytics'}
   ],
   automations: [],
@@ -44,4 +43,29 @@ const BOARD_DEV: Board = {
   ]
 };
 
-//
+// 3. Un Tableau Marketing simple
+const BOARD_MKT: Board = {
+  id: 'b_mkt', type: 'board', name: 'Marketing Campaigns', favorited: false,
+  views: [{id:'v1', type:'table', name:'Main Table'}, {id:'v2', type:'kanban', name:'Kanban'}],
+  automations: [],
+  columns: [
+    { id: 'c_task', title: 'Campaign', type: 'name', width: 280, fixed: true },
+    { id: 'c_status', title: 'Status', type: 'status', width: 140, settings: { labels: { 'Live': '#00c875', 'Planned': '#579bfc' } } }
+  ],
+  groups: [
+    { id: 'g_social', name: 'Social Media', color: '#a25ddc', collapsed: false, items: [] }
+  ]
+};
+
+const FORCE_DATA: Entity[] = [DASHBOARD_MAIN, BOARD_DEV, BOARD_MKT];
+
+// LE COMPOSANT PRINCIPAL (C'est lui qui manquait ou était cassé)
+export default async function Page() {
+  const initialWorkspace = FORCE_DATA;
+
+  return (
+    <div className="h-screen flex flex-col font-sans text-[#323338]">
+        <ClientWrapper initialWorkspace={initialWorkspace} />
+    </div>
+  );
+}

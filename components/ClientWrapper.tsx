@@ -11,14 +11,14 @@ import { Grid3x3, FileText, BarChart, Plus, Search } from 'lucide-react';
 export const ClientWrapper = ({ initialWorkspace }: { initialWorkspace: Entity[] }) => {
   const [activeId, setActiveId] = useState<string>(initialWorkspace[0].id);
   
-  // Trouver l'entité active
+  // Trouver l'entité active (Board ou Dashboard)
   const activeEntity = initialWorkspace.find(e => e.id === activeId) || initialWorkspace[0];
   const allBoards = initialWorkspace.filter(e => e.type === 'board') as Board[];
 
   return (
     <>
         {/* Navbar Global */}
-        <div className="h-12 bg-[#2b2c44] flex items-center px-4 text-white justify-between shadow-md z-50">
+        <div className="h-12 bg-[#2b2c44] flex items-center px-4 text-white justify-between shadow-md z-50 shrink-0">
             <div className="flex items-center gap-3">
                 <div className="p-1.5 bg-blue-600 rounded"><Grid3x3 size={18}/></div>
                 <div className="font-bold text-lg tracking-tight">monday<span className="font-normal opacity-70">.com</span></div>
