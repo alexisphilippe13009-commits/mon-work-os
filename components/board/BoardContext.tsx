@@ -2,75 +2,48 @@
 'use client'
 
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
-import { saveToCloud } from '@/app/actions';
-import { Board, Group, Item } from '@/app/types';
+import { Board, Item, User, Entity } from '@/app/types';
 
+// Actions
 type Action = 
-  | { type: 'INIT_BOARD'; payload: Board }
-  | { type: 'UPDATE_CELL'; payload: { groupId: string, itemId: string, colId: string, value: any } }
-  | { type: 'ADD_ITEM'; payload: { groupId: string, name: string } }
-  | { type: 'ADD_GROUP'; payload: { name: string } }
-  | { type: 'DELETE_ITEM'; payload: { groupId: string, itemId: string } };
+  | { type: 'INIT_WORKSPACE'; payload: Entity[] }
+  | { type: 'UPDATE_CELL'; payload: { boardId: string, groupId: string, itemId: string, colId: string, value: any } }
+  | { type: 'ADD_ITEM'; payload: { boardId: string, groupId: string, name: string } }
+  | { type: 'ADD_GROUP'; payload: { boardId: string, name: string } }
+  | { type: 'ADD_WORKSPACE'; payload: { name: string } }
+  | { type: 'UPDATE_DATE_RANGE'; payload: { boardId: string, itemId: string, start: string, end: string } };
 
-const boardReducer = (state: Board, action: Action): Board => {
+const boardReducer = (state: Entity[], action: Action): Entity[] => {
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
   switch (action.type) {
-    case 'INIT_BOARD': return action.payload;
+    case 'INIT_WORKSPACE': 
+        return action.payload;
+
     case 'UPDATE_CELL':
-      return {
-        ...state,
-        groups: state.groups.map(g => g.id !== action.payload.groupId ? g : {
-          ...g, items: g.items.map(i => i.id !== action.payload.itemId ? i : { ...i, values: { ...i.values, [action.payload.colId]: action.payload.value } })
-        })
-      };
+        return state.map(entity => {
+            if (entity.id !== action.payload.boardId || entity.type !== 'board') return entity;
+            const b = entity as Board;
+            return {
+                ...b,
+                groups: b.groups.map(g => g.id !== action.payload.groupId ? g : {
+                    ...g, items: g.items.map(i => i.id !== action.payload.itemId ? i : { ...i, values: { ...i.values, [action.payload.colId]: action.payload.value } })
+                })
+            };
+        });
+
     case 'ADD_ITEM':
-      return {
-        ...state,
-        groups: state.groups.map(g => g.id !== action.payload.groupId ? g : { ...g, items: [...g.items, { id: generateId(), name: action.payload.name, values: {} }] })
-      };
+        return state.map(entity => {
+            if (entity.id !== action.payload.boardId || entity.type !== 'board') return entity;
+            const b = entity as Board;
+            return {
+                ...b,
+                groups: b.groups.map(g => g.id !== action.payload.groupId ? g : { ...g, items: [...g.items, { id: generateId(), name: action.payload.name, values: {} }] })
+            };
+        });
+
     case 'ADD_GROUP':
-      return { ...state, groups: [...state.groups, { id: generateId(), name: action.payload.name, color: '#579bfc', collapsed: false, items: [] }] };
-    case 'DELETE_ITEM':
-        return { ...state, groups: state.groups.map(g => g.id !== action.payload.groupId ? g : { ...g, items: g.items.filter(i => i.id !== action.payload.itemId) }) };
-    default: return state;
-  }
-};
-
-const BoardContext = createContext<{
-  board: Board | null;
-  dispatch: React.Dispatch<Action>;
-  updateCell: (g: string, i: string, c: string, v: any) => void;
-  currentView: string;
-  setCurrentView: (v: string) => void;
-}>({ 
-    board: null, 
-    dispatch: () => {}, 
-    updateCell: () => {},
-    currentView: 'table',
-    setCurrentView: () => {}
-});
-
-export const BoardProvider = ({ children, initialData }: { children: React.ReactNode, initialData: Board }) => {
-  const [board, dispatch] = useReducer(boardReducer, initialData);
-  const [currentView, setCurrentView] = useState('table'); // Default view
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-        saveToCloud([board]); 
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [board]);
-
-  const updateCell = (groupId: string, itemId: string, colId: string, value: any) => {
-    dispatch({ type: 'UPDATE_CELL', payload: { groupId, itemId, colId, value } });
-  };
-
-  return (
-    <BoardContext.Provider value={{ board, dispatch, updateCell, currentView, setCurrentView }}>
-      {children}
-    </BoardContext.Provider>
-  );
-};
-
-export const useBoard = () => useContext(BoardContext);
+        return state.map(entity => {
+            if (entity.id !== action.payload.boardId || entity.type !== 'board') return entity;
+            const b = entity as Board;
+            return { ...b, groups: [...b.groups, { id: generateId(), name: action.payload
