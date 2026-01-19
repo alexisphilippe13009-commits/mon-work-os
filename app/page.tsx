@@ -61,9 +61,11 @@ const WORKSPACE_DATA: Entity[] = [DASHBOARD_MAIN, BOARD_2, BOARD_1];
 import { ClientWrapper } from '@/components/ClientWrapper'; 
 
 export default async function Page() {
-  const cloudData = await loadFromCloud();
+  const rawData = await loadFromCloud();
   
-  // Si données cloud, on les utilise, sinon Mock Data
+  // On force le typage ici pour rassurer TypeScript
+  const cloudData = rawData as unknown as Entity[];
+  
   const initialWorkspace = (cloudData && Array.isArray(cloudData) && cloudData.length > 0) 
     ? cloudData 
     : WORKSPACE_DATA;
