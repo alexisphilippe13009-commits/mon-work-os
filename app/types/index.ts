@@ -4,9 +4,7 @@ export type ColumnType =
   | 'status' | 'text' | 'people' | 'numbers' | 'date' | 'timeline' 
   | 'rating' | 'files' | 'formula' | 'progress' | 'check' | 'priority' 
   | 'country' | 'phone' | 'email' | 'link' | 'vote' | 'creation_log' 
-  | 'last_updated' | 'auto_number' | 'tags' | 'dependency' 
-  | 'world_clock' // <--- AJOUTÉ ICI
-  | 'name';
+  | 'last_updated' | 'auto_number' | 'tags' | 'dependency' | 'world_clock' | 'name';
 
 export interface Column {
   id: string;
@@ -35,7 +33,7 @@ export interface Group {
   collapsed: boolean;
 }
 
-// --- TYPES DASHBOARD & WIDGETS ---
+// --- TYPES DASHBOARD ---
 export interface Widget {
   id: string;
   type: 'battery' | 'numbers' | 'chart' | 'calendar' | 'gantt' | 'workload' | 'activity';
@@ -63,8 +61,6 @@ export interface View {
   widgets?: Widget[];
 }
 
-export type Entity = Board | Dashboard;
-
 export interface Board {
   id: string;
   name: string;
@@ -78,5 +74,18 @@ export interface Board {
   workspace_id?: string;
 }
 
-// FORCE UPDATE VARIABLE (DO NOT REMOVE)
-export const TYPES_VERSION = "v7_force_refresh";
+// --- TYPES WORKSPACE & USER (Ceux qui manquaient) ---
+export interface Workspace {
+  id: string;
+  name: string;
+  boards: Board[];
+}
+
+export interface User {
+  id: string;
+  name: string;
+  avatar: string;
+  role: string;
+}
+
+export type Entity = Board | Dashboard;
