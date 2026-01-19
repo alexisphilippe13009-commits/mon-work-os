@@ -4,7 +4,9 @@ export type ColumnType =
   | 'status' | 'text' | 'people' | 'numbers' | 'date' | 'timeline' 
   | 'rating' | 'files' | 'formula' | 'progress' | 'check' | 'priority' 
   | 'country' | 'phone' | 'email' | 'link' | 'vote' | 'creation_log' 
-  | 'last_updated' | 'auto_number' | 'tags' | 'dependency' | 'name';
+  | 'last_updated' | 'auto_number' | 'tags' | 'dependency' 
+  | 'world_clock' // <--- AJOUTÉ ICI
+  | 'name';
 
 export interface Column {
   id: string;
