@@ -6,13 +6,13 @@ import { BoardProvider } from '@/components/board/BoardContext';
 import { BoardCanvas } from '@/components/board/BoardCanvas';
 import { Board } from '@/app/types';
 
-// Données de secours COMPLÈTES pour l'initialisation Enterprise
+// Données de secours pour l'initialisation Enterprise
 const FALLBACK_DATA: Board = {
   id: 'b_demo', 
   name: 'Product Roadmap 2026', 
   favorited: true,
-  views: [],       // <--- AJOUTÉ
-  automations: [], // <--- AJOUTÉ
+  views: [],
+  automations: [],
   columns: [
     { id: 'c_name', title: 'Task Name', type: 'name', width: 300, fixed: true },
     { id: 'c_status', title: 'Status', type: 'status', width: 140, settings: { labels: { 'Done': '#00c875', 'Stuck': '#e2445c', 'Working': '#fdab3d' } } },
@@ -27,10 +27,14 @@ const FALLBACK_DATA: Board = {
 };
 
 export default async function Page() {
-  const cloudData = await loadFromCloud();
+  const rawData = await loadFromCloud();
   
-  // On récupère le premier board trouvé, ou on utilise le fallback
-  const initialBoard = (cloudData && cloudData[0] && cloudData[0].boards) ? cloudData[0].boards[0] : FALLBACK_DATA;
+  // LE FIX EST ICI : On caste "rawData" en "any" pour que TypeScript nous laisse accéder à l'index [0]
+  const cloudData = rawData as any;
+  
+  const initialBoard = (cloudData && Array.isArray(cloudData) && cloudData.length > 0 && cloudData[0].boards) 
+    ? cloudData[0].boards[0] 
+    : FALLBACK_DATA;
 
   return (
     <div className="h-screen flex flex-col font-sans text-[#323338]">
