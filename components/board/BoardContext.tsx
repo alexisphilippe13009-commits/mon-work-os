@@ -1,11 +1,10 @@
 // components/board/BoardContext.tsx
 'use client'
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { saveToCloud } from '@/app/actions';
 import { Board, Group, Item } from '@/app/types';
 
-// --- ACTIONS DEFINITION ---
 type Action = 
   | { type: 'INIT_BOARD'; payload: Board }
   | { type: 'UPDATE_CELL'; payload: { groupId: string, itemId: string, colId: string, value: any } }
@@ -13,68 +12,52 @@ type Action =
   | { type: 'ADD_GROUP'; payload: { name: string } }
   | { type: 'DELETE_ITEM'; payload: { groupId: string, itemId: string } };
 
-// --- REDUCER (Logic) ---
 const boardReducer = (state: Board, action: Action): Board => {
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
   switch (action.type) {
-    case 'INIT_BOARD':
-      return action.payload;
-
+    case 'INIT_BOARD': return action.payload;
     case 'UPDATE_CELL':
-      // Deep immutability update
       return {
         ...state,
         groups: state.groups.map(g => g.id !== action.payload.groupId ? g : {
-          ...g,
-          items: g.items.map(i => i.id !== action.payload.itemId ? i : {
-            ...i,
-            values: { ...i.values, [action.payload.colId]: action.payload.value }
-          })
+          ...g, items: g.items.map(i => i.id !== action.payload.itemId ? i : { ...i, values: { ...i.values, [action.payload.colId]: action.payload.value } })
         })
       };
-
     case 'ADD_ITEM':
-      const newItem: Item = { id: generateId(), name: action.payload.name, values: {} };
       return {
         ...state,
-        groups: state.groups.map(g => g.id !== action.payload.groupId ? g : {
-          ...g, items: [...g.items, newItem]
-        })
+        groups: state.groups.map(g => g.id !== action.payload.groupId ? g : { ...g, items: [...g.items, { id: generateId(), name: action.payload.name, values: {} }] })
       };
-
     case 'ADD_GROUP':
-      const newGroup: Group = { id: generateId(), name: action.payload.name, color: '#579bfc', collapsed: false, items: [] };
-      return { ...state, groups: [...state.groups, newGroup] };
-
+      return { ...state, groups: [...state.groups, { id: generateId(), name: action.payload.name, color: '#579bfc', collapsed: false, items: [] }] };
     case 'DELETE_ITEM':
-        return {
-            ...state,
-            groups: state.groups.map(g => g.id !== action.payload.groupId ? g : {
-                ...g, items: g.items.filter(i => i.id !== action.payload.itemId)
-            })
-        };
-
-    default:
-      return state;
+        return { ...state, groups: state.groups.map(g => g.id !== action.payload.groupId ? g : { ...g, items: g.items.filter(i => i.id !== action.payload.itemId) }) };
+    default: return state;
   }
 };
 
-// --- CONTEXT ---
 const BoardContext = createContext<{
   board: Board | null;
   dispatch: React.Dispatch<Action>;
-  updateCell: (groupId: string, itemId: string, colId: string, value: any) => void;
-}>({ board: null, dispatch: () => {}, updateCell: () => {} });
+  updateCell: (g: string, i: string, c: string, v: any) => void;
+  currentView: string;
+  setCurrentView: (v: string) => void;
+}>({ 
+    board: null, 
+    dispatch: () => {}, 
+    updateCell: () => {},
+    currentView: 'table',
+    setCurrentView: () => {}
+});
 
 export const BoardProvider = ({ children, initialData }: { children: React.ReactNode, initialData: Board }) => {
   const [board, dispatch] = useReducer(boardReducer, initialData);
+  const [currentView, setCurrentView] = useState('table'); // Default view
 
-  // Auto-save effect with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-        // En prod, on ne sauvegarde que si ça a changé
-        saveToCloud([board]); // Adapte selon la structure de ton action
+        saveToCloud([board]); 
     }, 2000);
     return () => clearTimeout(timer);
   }, [board]);
@@ -84,7 +67,7 @@ export const BoardProvider = ({ children, initialData }: { children: React.React
   };
 
   return (
-    <BoardContext.Provider value={{ board, dispatch, updateCell }}>
+    <BoardContext.Provider value={{ board, dispatch, updateCell, currentView, setCurrentView }}>
       {children}
     </BoardContext.Provider>
   );
