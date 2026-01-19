@@ -1,0 +1,38 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Tu auras juste à coller un lien ici plus tard
+}
+
+model Board {
+  id        String   @id @default(uuid())
+  name      String
+  columns   Json     @default("[]") // Stocke la structure (Text, Status, Date...)
+  items     Item[]
+  groups    Group[]
+  createdAt DateTime @default(now())
+}
+
+model Group {
+  id      String @id @default(uuid())
+  title   String
+  color   String @default("#579bfc")
+  boardId String
+  board   Board  @relation(fields: [boardId], references: [id])
+  items   Item[]
+}
+
+model Item {
+  id        String   @id @default(uuid())
+  name      String
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id])
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id])
+  values    Json     @default("{}") // Stocke les données { "status": "Done", "date": "2024-01-01" }
+  updatedAt DateTime @updatedAt
+}
