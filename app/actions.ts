@@ -25,7 +25,7 @@ export async function getBoardData() {
   return board;
 }
 
-// --- SETUP INITIAL ---
+// --- SETUP INITIAL (CORRIGÉ: Groupes vides pour éviter l'erreur TypeScript) ---
 async function createInitialSetup() {
   return await prisma.board.create({
     data: {
@@ -47,16 +47,8 @@ async function createInitialSetup() {
       ],
       groups: {
         create: [
-          { 
-            title: "Fonctionnalités Principales", 
-            color: "#579bfc",
-            items: { create: [{ name: "Design System V2", values: { status: "Done", priority: "High" } }] }
-          },
-          { 
-            title: "Bugs & Fixes", 
-            color: "#e2445c",
-            items: { create: [{ name: "Corriger l'API login", values: { status: "Stuck", priority: "High" } }] }
-          }
+          { title: "Fonctionnalités Principales", color: "#579bfc" },
+          { title: "Bugs & Fixes", color: "#e2445c" }
         ]
       }
     },
@@ -64,7 +56,7 @@ async function createInitialSetup() {
   });
 }
 
-// --- ACTIONS UTILISATEUR (Celles qui manquaient !) ---
+// --- ACTIONS UTILISATEUR ---
 
 export async function createItem(boardId: string, groupId: string, name: string) {
   if (!name.trim()) return;
