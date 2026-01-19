@@ -10,7 +10,7 @@ import {
   Bell, Settings, Upload, Clock, Tag, Paperclip, MessageSquare, 
   Activity, Link2, Copy, PieChart, Zap, Home, Inbox, 
   X, UserPlus, Folder, FileText, Menu, Play, Pause, Calculator, File, Image as ImageIcon, CornerDownRight,
-  Globe, Phone, Mail, MapPin, Flag
+  Globe, Phone, Mail, MapPin, Flag, Loader2
 } from 'lucide-react';
 
 // --- CONSTANTS & HELPERS ---
