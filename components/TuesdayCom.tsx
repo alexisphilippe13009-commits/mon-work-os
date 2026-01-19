@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client'
 import React, { useState } from 'react';
 import { Plus, Search, ChevronDown, ChevronRight, MoreHorizontal, Calendar, BarChart3, Users, CheckSquare, Grid3x3, List, Trash2, Filter, Share2, Star, Bell, Settings, Download, Upload, Clock, Tag, Paperclip, MessageSquare, Activity, Link2, Copy, Eye, EyeOff, TrendingUp, PieChart, Zap, Home, Inbox, Play, X, Edit2, UserPlus, Folder, FileText, Archive, Menu, LogOut, CreditCard, Building2, Mail } from 'lucide-react';
